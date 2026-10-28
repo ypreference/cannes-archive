@@ -299,7 +299,7 @@ function plate(e, big, label, url){
   const cls = TIERS[e.tier].cls;
   const th = LIVE ? thumbOf(url||e.video) : null;
   return `<div class="plate p-${cls} ${th?"has-thumb":""}">${th?`<img class="thumb" src="${esc(th)}" alt="" loading="lazy" onerror="this.parentNode.classList.remove('has-thumb');this.remove()">`:""}<span class="rings"></span>
-    <span class="cat">${esc(label||e.cat)}</span>
+    <span class="cat">${esc(label||e.cat||"")}</span>
     <span class="mark">${esc(e.brand)}</span>
     ${e.noVideo ? "" : '<span class="play" aria-hidden="true"></span>'}</div>`;
 }
@@ -337,7 +337,7 @@ function tierPage(k){
   const shown = filter==="done" ? list.filter(isDone) : list;
   const cards = shown.map(e => `<a class="card ${isDone(e)?"":"pending"}" href="#c-${e.id}">
       ${plate(e,false,null,e.video)}
-      <div><div class="ttl">${esc(e.title)}</div><div class="sub">${esc(e.brand)} · ${esc(e.awards.join(", "))}</div></div>
+      <div><div class="ttl">${esc(e.title)}</div><div class="sub">${esc(e.brand)}${e.awards?" · "+esc(e.awards.join(", ")):""}</div></div>
       <div>${isDone(e)?'':'<span class="chip">정리 예정</span>'}</div></a>`).join("");
   return `<div class="listhead"><div><span class="eyebrow">${k==="grand-prix"?"Grand Prix · Titanium":k}</span><h1>${t.name}</h1></div>
     <span class="count">${list.filter(isDone).length} / ${list.length}편 정리 완료</span></div>
@@ -352,7 +352,7 @@ function paras(arr){ return arr.map(p => `<p>${esc(p)}</p>`).join(""); }
 function detail(e){
   const t = TIERS[e.tier], list = E.filter(x => x.tier===e.tier), i = list.indexOf(e);
   const prev = list[i-1], next = list[i+1];
-  const awards = e.awards.map(a => `<span class="award p-${t.cls}">${esc(a)}</span>`).join("");
+  const awards = (e.awards||[]).map(a => `<span class="award p-${t.cls}">${esc(a)}</span>`).join("");
   const vids = [{kind: e.videoKind || (e.noVideo ? "케이스 자료" : "케이스 영상"), url:e.video}].concat(e.films||FILMS[e.id]||[]);
   let body, body2 = "";
   if(isDone(e)){
@@ -372,7 +372,7 @@ function detail(e){
       <div><dt>캠페인</dt><dd>${esc(e.title)}</dd></div>
       <div><dt>에이전시</dt><dd>${esc(e.agency)}</dd></div>
       ${e.country?`<div><dt>국가</dt><dd>${esc(e.country)}</dd></div>`:""}
-      <div><dt>수상</dt><dd>${esc(e.awards.join(" / "))}</dd></div>
+      <div><dt>수상</dt><dd>${esc((e.awards||["골드"]).join(" / "))}</dd></div>
     </dl>
     ${e.sources?`<div class="sources"><span class="eyebrow">출처</span><ol>${e.sources.map(s=>`<li><a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join("")}</ol></div>`:""}
   </aside>`;
