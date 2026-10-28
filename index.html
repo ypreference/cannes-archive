@@ -278,7 +278,7 @@ function tierPage(k){
   const cards = shown.map(e => `<a class="card ${isDone(e)?"":"pending"}" href="#c-${e.id}">
       ${plate(e,false,null,e.video)}
       <div><div class="ttl">${esc(e.title)}</div><div class="sub">${esc(e.brand)} · ${esc(e.awards.join(", "))}</div></div>
-      <div>${isDone(e)?'<span class="chip done">정리 완료</span>':'<span class="chip">정리 예정</span>'}</div></a>`).join("");
+      <div>${isDone(e)?'':'<span class="chip">정리 예정</span>'}</div></a>`).join("");
   return `<div class="listhead"><div><span class="eyebrow">${k==="grand-prix"?"Grand Prix · Titanium":k}</span><h1>${t.name}</h1></div>
     <span class="count">${list.filter(isDone).length} / ${list.length}편 정리 완료</span></div>
     <div class="filters" role="group" aria-label="보기">
