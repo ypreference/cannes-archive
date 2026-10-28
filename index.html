@@ -115,7 +115,11 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .dgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;align-items:start}
 @media (max-width:860px){.dgrid{grid-template-columns:minmax(0,1fr)}}
 .vids{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;margin-bottom:24px}
-.media{max-width:960px;margin-bottom:8px}
+.media{max-width:720px;margin-bottom:8px}
+.media.with-desc{max-width:none;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;align-items:start}
+.media.with-desc .vdesc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);margin-bottom:24px}
+.media.with-desc .vdesc[open] .vbody{max-height:calc(100vh - 170px);overflow-y:auto;overscroll-behavior:contain}
+@media (max-width:860px){.media.with-desc{display:block}.media.with-desc .vdesc{position:static}.media.with-desc .vdesc[open] .vbody{max-height:none}}
 .video{display:grid;gap:8px;text-decoration:none;min-width:0}
 .vmeta{display:flex;flex-direction:column;font-size:13px;color:var(--muted);line-height:1.5}
 .vmeta b{color:var(--ink);font-size:14px}
@@ -435,9 +439,9 @@ function detail(e){
   </aside>`;
   return `<a class="back" href="#${e.tier}">← ${t.name} 목록</a>
     <header class="dhead"><div class="awards">${awards}</div><h1>${esc(e.title)}</h1>${e.ko?`<p class="ko">${esc(e.ko)}</p>`:""}</header>
-    <section class="media">
+    <section class="media ${e.videoDesc?"with-desc":""}">
       <div class="vids ${vids.length>1?"two":""}">${vids.map(v=>{ const em = LIVE ? embedOf(v.url) : null; const meta=`<span class="vmeta"><b>${esc(v.kind)}</b><span>${v.title?esc(v.title)+" · ":""}<a href="${esc(v.url)}" target="_blank" rel="noopener">${host(v.url)}에서 보기 ↗</a></span></span>`; return em ? `<div class="video"><button type="button" class="vplay" data-embed="${esc(em)}" aria-label="${esc(v.kind)} 재생">${plate(e,true,v.kind,v.url)}</button>${meta}</div>` : `<div class="video"><a class="vlink" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.kind)} 열기">${plate(e,true,v.kind,v.url)}</a>${meta}</div>`; }).join("")}</div>
-      ${e.videoDesc?`<details class="vdesc" id="vd-${e.id}"><summary>영상 내용 보기</summary><div class="vbody">${e.videoDesc.map(sec=>typeof sec==="string"?`<p>${esc(sec)}</p>`:`<h4>${esc(sec.h)}</h4>${paras(sec.p)}`).join("")}${e.videoNote?`<p class="vnote">${esc(e.videoNote)}</p>`:""}<button type="button" class="vclose">영상 내용 접기 ▲</button></div></details>`:""}
+      ${e.videoDesc?`<details class="vdesc" id="vd-${e.id}"><summary>영상 내용</summary><div class="vbody">${e.videoDesc.map(sec=>typeof sec==="string"?`<p>${esc(sec)}</p>`:`<h4>${esc(sec.h)}</h4>${paras(sec.p)}`).join("")}${e.videoNote?`<p class="vnote">${esc(e.videoNote)}</p>`:""}<button type="button" class="vclose">접기 ▲</button></div></details>`:""}
     </section>
     <div class="dgrid"><div style="min-width:0">
       ${body}
@@ -454,6 +458,7 @@ function route(keepScroll){
   else html = home();
   app.innerHTML = html;
   renderNav(r);
+  if (matchMedia("(min-width: 861px)").matches) app.querySelectorAll(".media.with-desc .vdesc").forEach(d => d.open = true);
   app.querySelectorAll(".vclose").forEach(b => b.addEventListener("click", () => {
     const d = b.closest("details"); d.open = false;
     const r = d.getBoundingClientRect();
