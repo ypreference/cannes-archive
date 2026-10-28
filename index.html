@@ -114,15 +114,13 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .award{font-size:13px;font-weight:600;padding:4px 10px;border-radius:3px;color:var(--plate-ink)}
 .dgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;align-items:start}
 @media (max-width:860px){.dgrid{grid-template-columns:minmax(0,1fr)}}
-.vids{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-bottom:20px}
-.vids.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-@media (max-width:600px){.vids.two{grid-template-columns:minmax(0,1fr)}}
+.vids{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;margin-bottom:24px}
+.media{max-width:960px;margin-bottom:8px}
 .video{display:grid;gap:8px;text-decoration:none;min-width:0}
 .vmeta{display:flex;flex-direction:column;font-size:13px;color:var(--muted);line-height:1.5}
 .vmeta b{color:var(--ink);font-size:14px}
 .video:hover .vmeta span{color:var(--accent)}
-.vids.two .plate .mark{font-size:clamp(20px,2.6vw,30px)}
-.vids.two .plate .play{width:44px;height:44px;right:16px;bottom:16px}
+
 .video .plate{aspect-ratio:16/9}
 .video .plate .mark{font-size:clamp(28px,5vw,48px)}
 .video .plate .play{width:56px;height:56px;right:22px;bottom:22px}
@@ -138,6 +136,8 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .vdesc .vnote{font-size:13px;color:var(--muted)}
 .vdesc h4{margin:22px 0 0;font-family:var(--f-body);font-size:14px;font-weight:600;color:var(--accent)}
 .vdesc .flink{color:var(--accent);font-weight:600}
+.vclose{margin-top:20px;font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
+.vclose:hover{color:var(--ink)}
 .vcap a{color:var(--accent)}
 article section{padding-block:22px;border-top:1px solid var(--line);display:grid;grid-template-columns:120px minmax(0,1fr);gap:20px}
 @media (max-width:600px){article section{grid-template-columns:minmax(0,1fr);gap:8px}}
@@ -435,9 +435,11 @@ function detail(e){
   </aside>`;
   return `<a class="back" href="#${e.tier}">← ${t.name} 목록</a>
     <header class="dhead"><div class="awards">${awards}</div><h1>${esc(e.title)}</h1>${e.ko?`<p class="ko">${esc(e.ko)}</p>`:""}</header>
-    <div class="dgrid"><div style="min-width:0">
+    <section class="media">
       <div class="vids ${vids.length>1?"two":""}">${vids.map(v=>{ const em = LIVE ? embedOf(v.url) : null; const meta=`<span class="vmeta"><b>${esc(v.kind)}</b><span>${v.title?esc(v.title)+" · ":""}<a href="${esc(v.url)}" target="_blank" rel="noopener">${host(v.url)}에서 보기 ↗</a></span></span>`; return em ? `<div class="video"><button type="button" class="vplay" data-embed="${esc(em)}" aria-label="${esc(v.kind)} 재생">${plate(e,true,v.kind,v.url)}</button>${meta}</div>` : `<div class="video"><a class="vlink" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.kind)} 열기">${plate(e,true,v.kind,v.url)}</a>${meta}</div>`; }).join("")}</div>
-      ${e.videoDesc?`<details class="vdesc" id="vd-${e.id}"><summary>영상 내용 보기</summary><div class="vbody">${e.videoDesc.map(sec=>typeof sec==="string"?`<p>${esc(sec)}</p>`:`<h4>${esc(sec.h)}</h4>${paras(sec.p)}`).join("")}${e.videoNote?`<p class="vnote">${esc(e.videoNote)}</p>`:""}</div></details>`:""}
+      ${e.videoDesc?`<details class="vdesc" id="vd-${e.id}"><summary>영상 내용 보기</summary><div class="vbody">${e.videoDesc.map(sec=>typeof sec==="string"?`<p>${esc(sec)}</p>`:`<h4>${esc(sec.h)}</h4>${paras(sec.p)}`).join("")}${e.videoNote?`<p class="vnote">${esc(e.videoNote)}</p>`:""}<button type="button" class="vclose">영상 내용 접기 ▲</button></div></details>`:""}
+    </section>
+    <div class="dgrid"><div style="min-width:0">
       ${body}
       <nav class="pager">${prev?`<a href="#c-${prev.id}">← 이전<b>${esc(prev.title)}</b></a>`:"<span></span>"}${next?`<a href="#c-${next.id}" style="text-align:right">다음 →<b>${esc(next.title)}</b></a>`:""}</nav>
     </div>${facts}</div>`;
@@ -452,6 +454,11 @@ function route(keepScroll){
   else html = home();
   app.innerHTML = html;
   renderNav(r);
+  app.querySelectorAll(".vclose").forEach(b => b.addEventListener("click", () => {
+    const d = b.closest("details"); d.open = false;
+    const r = d.getBoundingClientRect();
+    if (r.top < 80) window.scrollBy({top: r.top - 90, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  }));
   app.querySelectorAll(".vplay").forEach(b => b.addEventListener("click", () => {
     const f = document.createElement("iframe");
     f.src = b.dataset.embed; f.className = "vframe"; f.allow = "autoplay; fullscreen; picture-in-picture"; f.allowFullscreen = true; f.title = b.getAttribute("aria-label");
