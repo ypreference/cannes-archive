@@ -95,22 +95,21 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .plate.has-thumb .mark,.plate.has-thumb .rings{display:none}
 .plate.has-thumb .cat,.plate.has-thumb .play{z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .plate.has-thumb .play{background:rgba(0,0,0,.35)}
-.yt{position:relative;aspect-ratio:16/9;background:#000;border-radius:5px;overflow:hidden;outline:none}
-.yt:fullscreen{border-radius:0;aspect-ratio:auto}
+.yt{background:#000;border-radius:5px;overflow:hidden;outline:none;display:flex;flex-direction:column}
+.yt:fullscreen{border-radius:0;justify-content:center}
+.yt-stage{position:relative;aspect-ratio:16/9;width:100%}
+.yt:fullscreen .yt-stage{aspect-ratio:auto;flex:1}
 .yt-frame,.yt-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.yt-frame{transform:scale(1.0)}
 .yt-hit{position:absolute;inset:0;cursor:pointer}
-.yt-bar{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;padding:18px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.6));opacity:1;transition:opacity .25s}
-.yt.playing .yt-bar{opacity:0}
-.yt.playing:hover .yt-bar,.yt.playing:focus-within .yt-bar{opacity:1}
-.yt-bar button{all:unset;cursor:pointer;width:22px;height:22px;display:grid;place-items:center;color:#fff}
+.yt-bar{display:flex;align-items:center;gap:12px;padding:8px 12px;background:#111}
+.yt-bar button{all:unset;cursor:pointer;width:22px;height:22px;display:grid;place-items:center;color:#fff;flex:none}
 .yt-bar button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .yt-pp::before{content:"";border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px}
 .yt.playing .yt-pp::before{border:0;width:4px;height:14px;margin:0;box-shadow:-4px 0 0 #fff,4px 0 0 #fff;background:transparent}
 .yt-mute::before{content:"🔊";font-size:14px}.yt.muted .yt-mute::before{content:"🔇"}
 .yt-fs::before{content:"";width:12px;height:12px;border:2px solid #fff;border-radius:2px}
-.yt-seek{flex:1;accent-color:#fff;height:4px;cursor:pointer}
-.yt-time{color:#fff;font:12px/1 ui-monospace,monospace;white-space:nowrap}
+.yt-seek{flex:1;min-width:0;accent-color:#fff;height:4px;cursor:pointer}
+.yt-time{color:#ddd;font:12px/1 ui-monospace,monospace;white-space:nowrap}
 .vplay{all:unset;display:block;cursor:pointer;border-radius:5px}
 .vplay:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .vlink{display:block;text-decoration:none}
@@ -315,7 +314,7 @@ let ytApi=null;
 function loadYT(){ if(ytApi) return ytApi; ytApi=new Promise(res=>{ if(window.YT&&YT.Player) return res(); window.onYouTubeIframeAPIReady=()=>res(); const sc=document.createElement("script"); sc.src="https://www.youtube.com/iframe_api"; document.head.appendChild(sc); }); return ytApi; }
 const fmtT=t=>{t=Math.max(0,Math.floor(t||0)); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0");};
 async function mountYT(btn,id){
-  const w=document.createElement("div"); w.className="yt"; w.innerHTML=`<div class="yt-frame"><div></div></div><div class="yt-hit" aria-hidden="true"></div><div class="yt-bar"><button type="button" class="yt-pp" aria-label="재생/일시정지"></button><input class="yt-seek" type="range" min="0" max="1000" value="0" aria-label="재생 위치"><span class="yt-time">0:00</span><button type="button" class="yt-mute" aria-label="음소거"></button><button type="button" class="yt-fs" aria-label="전체 화면"></button></div>`;
+  const w=document.createElement("div"); w.className="yt"; w.innerHTML=`<div class="yt-stage"><div class="yt-frame"><div></div></div><div class="yt-hit" aria-hidden="true"></div></div><div class="yt-bar"><button type="button" class="yt-pp" aria-label="재생/일시정지"></button><input class="yt-seek" type="range" min="0" max="1000" value="0" aria-label="재생 위치"><span class="yt-time">0:00</span><button type="button" class="yt-mute" aria-label="음소거"></button><button type="button" class="yt-fs" aria-label="전체 화면"></button></div>`;
   btn.replaceWith(w);
   await loadYT();
   const host=w.querySelector(".yt-frame div"), pp=w.querySelector(".yt-pp"), seek=w.querySelector(".yt-seek"), time=w.querySelector(".yt-time"), mute=w.querySelector(".yt-mute");
