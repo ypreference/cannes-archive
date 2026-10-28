@@ -411,17 +411,20 @@ function tierPage(k){
     <div class="cards">${cards}</div>`;
 }
 
+const NEW_ORDER = new Set(["haven"]);
 function paras(arr){ return arr.map(p => `<p>${esc(p)}</p>`).join(""); }
 function detail(e){
   const t = TIERS[e.tier], list = E.filter(x => x.tier===e.tier), i = list.indexOf(e);
   const prev = list[i-1], next = list[i+1];
   const awards = e.awards.map(a => `<span class="award p-${t.cls}">${esc(a)}</span>`).join("");
   const vids = [{kind: e.videoKind || (e.noVideo ? "케이스 자료" : "케이스 영상"), url:e.video}].concat(e.films||FILMS[e.id]||[]);
-  let body;
+  let body, body2 = "";
   if(isDone(e)){
     body = `<article>
       <section><h2>배경 및 문제</h2><div>${paras(e.bg)}</div></section>
       <section><h2>해결</h2><div>${paras(e.solIntro)}<ul style="margin-top:4px">${e.sol.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div></section>
+    </article>`;
+    body2 = `<article>
       <section><h2>성과</h2><div>${e.stats?`<div class="stats">${e.stats.map(s=>`<div class="stat"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div>`).join("")}</div>`:""}${paras(e.results)}</div></section>
       <section><h2>분석</h2><div>${paras(e.analysis)}</div></section>
     </article>`;
@@ -437,15 +440,25 @@ function detail(e){
     </dl>
     ${e.sources?`<div class="sources"><span class="eyebrow">출처</span><ol>${e.sources.map(s=>`<li><a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join("")}</ol></div>`:""}
   </aside>`;
-  return `<a class="back" href="#${e.tier}">← ${t.name} 목록</a>
-    <header class="dhead"><div class="awards">${awards}</div><h1>${esc(e.title)}</h1>${e.ko?`<p class="ko">${esc(e.ko)}</p>`:""}</header>
-    <section class="media ${e.videoDesc?"with-desc":""}">
+  const head = `<a class="back" href="#${e.tier}">← ${t.name} 목록</a>
+    <header class="dhead"><div class="awards">${awards}</div><h1>${esc(e.title)}</h1>${e.ko?`<p class="ko">${esc(e.ko)}</p>`:""}</header>`;
+  const media = `<section class="media ${e.videoDesc?"with-desc":""}">
       <div class="vids ${vids.length>1?"two":""}">${vids.map(v=>{ const em = LIVE ? embedOf(v.url) : null; const meta=`<span class="vmeta"><b>${esc(v.kind)}</b><span>${v.title?esc(v.title)+" · ":""}<a href="${esc(v.url)}" target="_blank" rel="noopener">${host(v.url)}에서 보기 ↗</a></span></span>`; return em ? `<div class="video"><button type="button" class="vplay" data-embed="${esc(em)}" aria-label="${esc(v.kind)} 재생">${plate(e,true,v.kind,v.url)}</button>${meta}</div>` : `<div class="video"><a class="vlink" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.kind)} 열기">${plate(e,true,v.kind,v.url)}</a>${meta}</div>`; }).join("")}</div>
       ${e.videoDesc?`<details class="vdesc" id="vd-${e.id}"><summary>영상 내용</summary><div class="vbody">${e.videoDesc.map(sec=>typeof sec==="string"?`<p>${esc(sec)}</p>`:`<h4>${esc(sec.h)}</h4>${paras(sec.p)}`).join("")}${e.videoNote?`<p class="vnote">${esc(e.videoNote)}</p>`:""}<button type="button" class="vclose">접기 ▲</button></div></details>`:""}
-    </section>
+    </section>`;
+  const pager = `<nav class="pager">${prev?`<a href="#c-${prev.id}">← 이전<b>${esc(prev.title)}</b></a>`:"<span></span>"}${next?`<a href="#c-${next.id}" style="text-align:right">다음 →<b>${esc(next.title)}</b></a>`:""}</nav>`;
+  // 새 순서(배경·해결 → 영상 → 성과·분석) 시범 적용: Haven만
+  if(NEW_ORDER.has(e.id) && isDone(e)){
+    return `${head}
+    <div class="dgrid"><div style="min-width:0">${body}</div>${facts}</div>
+    ${media}
+    <div class="dgrid"><div style="min-width:0">${body2}${pager}</div><div></div></div>`;
+  }
+  return `${head}
+    ${media}
     <div class="dgrid"><div style="min-width:0">
-      ${body}
-      <nav class="pager">${prev?`<a href="#c-${prev.id}">← 이전<b>${esc(prev.title)}</b></a>`:"<span></span>"}${next?`<a href="#c-${next.id}" style="text-align:right">다음 →<b>${esc(next.title)}</b></a>`:""}</nav>
+      ${body}${body2}
+      ${pager}
     </div>${facts}</div>`;
 }
 
