@@ -589,7 +589,7 @@ function renderNav(route){
 function home(){
   const tiles = Object.entries(TIERS).map(([k,t]) => {
     const list = E.filter(e => e.tier===k), done = list.filter(isDone).length;
-    const meta = list.length ? `${done} / ${list.length}편 정리 완료` : "정리 예정";
+    const meta = list.length ? `${list.length}편` : "정리 예정";
     const pct = list.length ? Math.round(done/list.length*100) : 0;
     return `<a class="tiertile t-${t.cls} ${list.length?"":"soon"}" href="#${k}">
       <span class="meta">${k==="grand-prix"?"GRAND PRIX · TITANIUM":k.toUpperCase()}</span>
@@ -610,7 +610,7 @@ const PER = 20;
 function tierPage(k, page){
   const t = TIERS[k], list = E.filter(e => e.tier===k);
   if(!list.length) return `<div class="listhead"><h1>${t.name}</h1></div><div class="pendingbox">${t.name} 수상작은 그랑프리 정리가 끝난 뒤 순서대로 추가할 예정임.</div>`;
-  const shown = filter==="done" ? list.filter(isDone) : list;
+  const shown = list;
   const pages = Math.max(1, Math.ceil(shown.length / PER));
   const pg = Math.min(Math.max(1, page||1), pages);
   const slice = shown.slice((pg-1)*PER, pg*PER);
@@ -626,16 +626,12 @@ function tierPage(k, page){
     nav += `${pg<pages?lk(pg+1,"›"):'<span class="off">›</span>'}</nav>`;
   }
   return `<div class="listhead"><div><span class="eyebrow">${k==="grand-prix"?"Grand Prix · Titanium":k}</span><h1>${t.name}</h1></div>
-    <span class="count">${list.filter(isDone).length} / ${list.length}편 정리 완료</span></div>
-    <div class="filters" role="group" aria-label="보기">
-      <button type="button" id="f-all" aria-pressed="${filter==="all"}" data-f="all">전체</button>
-      <button type="button" id="f-done" aria-pressed="${filter==="done"}" data-f="done">정리 완료만</button>
-    </div>
+    <span class="count">${list.length}편</span></div>
     <div class="cards">${cards}</div>${nav}`;
 }
 function pageOf(e){
   const list = E.filter(x => x.tier===e.tier);
-  const shown = filter==="done" ? list.filter(isDone) : list;
+  const shown = list;
   const i = shown.indexOf(e);
   return i<0 ? 1 : Math.floor(i/PER)+1;
 }
@@ -712,7 +708,7 @@ function route(keepScroll){
     f.src = b.dataset.embed; f.className = "vframe"; f.allow = "autoplay; fullscreen; picture-in-picture"; f.allowFullscreen = true; f.title = b.getAttribute("aria-label");
     b.replaceWith(f);
   }));
-  app.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; if(location.hash.includes("/")) location.hash = "#"+rk; else route(true); }));
+  
   if(keepScroll !== true) window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", () => route());
