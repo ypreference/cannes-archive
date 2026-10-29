@@ -75,6 +75,11 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
 .filters button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:5px 12px;border-radius:999px;cursor:pointer}
 .filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pages{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:28px 0 8px}
+.pages a,.pages span{min-width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid var(--line);border-radius:999px;font-size:14px;color:var(--muted);background:var(--surface);text-decoration:none}
+.pages a:hover{color:var(--ink);border-color:var(--ink)}
+.pages .cur{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.pages .off{opacity:.35}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px 18px}
 .card{text-decoration:none;display:grid;gap:10px;min-width:0}
 .card .ttl{font-weight:600;font-size:16px;line-height:1.4}
@@ -601,21 +606,38 @@ function home(){
 }
 
 let filter = "all";
-function tierPage(k){
+const PER = 20;
+function tierPage(k, page){
   const t = TIERS[k], list = E.filter(e => e.tier===k);
   if(!list.length) return `<div class="listhead"><h1>${t.name}</h1></div><div class="pendingbox">${t.name} 수상작은 그랑프리 정리가 끝난 뒤 순서대로 추가할 예정임.</div>`;
   const shown = filter==="done" ? list.filter(isDone) : list;
-  const cards = shown.map(e => `<a class="card ${isDone(e)?"":"pending"}" href="#c-${e.id}">
+  const pages = Math.max(1, Math.ceil(shown.length / PER));
+  const pg = Math.min(Math.max(1, page||1), pages);
+  const slice = shown.slice((pg-1)*PER, pg*PER);
+  const cards = slice.map(e => `<a class="card ${isDone(e)?"":"pending"}" href="#c-${e.id}">
       ${plate(e,false,null,e.video)}
       <div><div class="ttl">${esc(e.title)}</div><div class="sub">${esc(e.brand)}${e.awards?" · "+esc(e.awards.join(", ")):""}</div></div>
       <div>${isDone(e)?'':'<span class="chip">정리 예정</span>'}</div></a>`).join("");
+  let nav = "";
+  if(pages > 1){
+    const lk = (n, label, cls) => `<a href="#${k}/${n}" class="${cls||""}"${n===pg?' aria-current="page"':''}>${label}</a>`;
+    nav = `<nav class="pages" aria-label="페이지">${pg>1?lk(pg-1,"‹"):'<span class="off">‹</span>'}`;
+    for(let n=1;n<=pages;n++) nav += lk(n, n, n===pg?"cur":"");
+    nav += `${pg<pages?lk(pg+1,"›"):'<span class="off">›</span>'}</nav>`;
+  }
   return `<div class="listhead"><div><span class="eyebrow">${k==="grand-prix"?"Grand Prix · Titanium":k}</span><h1>${t.name}</h1></div>
     <span class="count">${list.filter(isDone).length} / ${list.length}편 정리 완료</span></div>
     <div class="filters" role="group" aria-label="보기">
       <button type="button" id="f-all" aria-pressed="${filter==="all"}" data-f="all">전체</button>
       <button type="button" id="f-done" aria-pressed="${filter==="done"}" data-f="done">정리 완료만</button>
     </div>
-    <div class="cards">${cards}</div>`;
+    <div class="cards">${cards}</div>${nav}`;
+}
+function pageOf(e){
+  const list = E.filter(x => x.tier===e.tier);
+  const shown = filter==="done" ? list.filter(isDone) : list;
+  const i = shown.indexOf(e);
+  return i<0 ? 1 : Math.floor(i/PER)+1;
 }
 
 function paras(arr){ return arr.map(p => `<p>${esc(p)}</p>`).join(""); }
@@ -646,7 +668,7 @@ function detail(e){
     </dl>
     ${e.sources?`<div class="sources"><span class="eyebrow">출처</span><ol>${e.sources.map(s=>`<li><a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join("")}</ol></div>`:""}
   </aside>`;
-  const head = `<a class="back" href="#${e.tier}">← ${t.name} 목록</a>
+  const head = `<a class="back" href="#${e.tier}${pageOf(e)>1?"/"+pageOf(e):""}">← ${t.name} 목록</a>
     <header class="dhead"><div class="awards">${awards}</div><h1>${esc(e.title)}</h1>${e.ko?`<p class="ko">${esc(e.ko)}</p>`:""}</header>`;
   const media = `<section class="media ${e.videoDesc?"with-desc":""}">
       <div class="vids ${vids.length>1?"two":""}">${vids.map(v=>{ const em = LIVE ? embedOf(v.url) : null; const meta=`<span class="vmeta"><b>${esc(v.kind)}</b><span>${v.title?esc(v.title)+" · ":""}<a href="${esc(v.url)}" target="_blank" rel="noopener">${host(v.url)}에서 보기 ↗</a></span></span>`; return em ? `<div class="video"><button type="button" class="vplay" data-embed="${esc(em)}" aria-label="${esc(v.kind)} 재생">${plate(e,true,v.kind,v.url)}</button>${meta}</div>` : `<div class="video"><a class="vlink" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.kind)} 열기">${plate(e,true,v.kind,v.url)}</a>${meta}</div>`; }).join("")}</div>
@@ -672,11 +694,12 @@ function route(keepScroll){
   const r = location.hash.replace("#","");
   const app = document.getElementById("app");
   let html;
-  if(TIERS[r]) html = tierPage(r);
+  const [rk, rp] = r.split("/");
+  if(TIERS[rk]) html = tierPage(rk, parseInt(rp)||1);
   else if(r.startsWith("c-") && E.find(e => "c-"+e.id===r)) html = detail(E.find(e => "c-"+e.id===r));
   else html = home();
   app.innerHTML = html;
-  renderNav(r);
+  renderNav(rk);
   if (matchMedia("(min-width: 861px)").matches) app.querySelectorAll(".media.with-desc .vdesc").forEach(d => d.open = true);
   app.querySelectorAll(".vclose").forEach(b => b.addEventListener("click", () => {
     const d = b.closest("details"); d.open = false;
@@ -689,7 +712,7 @@ function route(keepScroll){
     f.src = b.dataset.embed; f.className = "vframe"; f.allow = "autoplay; fullscreen; picture-in-picture"; f.allowFullscreen = true; f.title = b.getAttribute("aria-label");
     b.replaceWith(f);
   }));
-  app.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; route(true); }));
+  app.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; if(location.hash.includes("/")) location.hash = "#"+rk; else route(true); }));
   if(keepScroll !== true) window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", () => route());
