@@ -151,6 +151,11 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 
 .video .plate{aspect-ratio:16/9}
 .video .plate .mark{font-size:clamp(28px,5vw,48px)}
+.plate .mark.m-l{font-size:clamp(17px,2.1vw,22px)}
+.plate .mark.m-xl{font-size:clamp(15px,1.7vw,18px)}
+.plate .mark{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.video .plate .mark.m-l{font-size:clamp(24px,4vw,38px)}
+.video .plate .mark.m-xl{font-size:clamp(20px,3.2vw,30px)}
 .video .plate .play{width:56px;height:56px;right:22px;bottom:22px}
 .video .plate .play::after{border-left-width:14px;border-top-width:9px;border-bottom-width:9px}
 .vcap{font-size:13px;color:var(--muted);margin:0 0 20px}
@@ -575,7 +580,7 @@ function plate(e, big, label, url){
   const th = LIVE ? thumbOf(url||e.video) : null;
   return `<div class="plate p-${cls} ${th?"has-thumb":""}">${th?`<img class="thumb" src="${esc(th)}" alt="" loading="lazy" onerror="this.parentNode.classList.remove('has-thumb');this.remove()">`:""}<span class="rings"></span>
     <span class="cat">${esc(label||e.cat||"")}</span>
-    <span class="mark">${esc(e.brand)}</span>
+    <span class="mark ${e.brand.length>26?"m-xl":e.brand.length>16?"m-l":""}">${esc(e.brand)}</span>
     ${e.noVideo ? "" : '<span class="play" aria-hidden="true"></span>'}</div>`;
 }
 
