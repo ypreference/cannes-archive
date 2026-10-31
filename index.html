@@ -47,6 +47,11 @@ nav.tiers a{text-decoration:none;font-size:14px;font-weight:500;padding:6px 12px
 nav.tiers a .dot{width:8px;height:8px;border-radius:50%}
 nav.tiers a:hover{color:var(--ink);background:var(--bg)}
 nav.tiers a[aria-current="page"]{color:var(--ink);background:var(--bg);font-weight:600}
+form.search{flex:0 1 240px;min-width:160px}
+form.search input{width:100%;font:inherit;font-size:14px;padding:7px 12px 7px 32px;border:1px solid var(--line);border-radius:999px;background:var(--bg) no-repeat 11px 50%/14px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");color:var(--ink)}
+form.search input:focus{outline:2px solid var(--accent);outline-offset:1px}
+@media (max-width:700px){form.search{order:3;flex:1 1 100%}}
+.searchhint{color:var(--muted);font-size:14px;margin:-6px 0 22px}
 a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 main{padding-block:40px 80px}
@@ -202,6 +207,7 @@ aside.facts dd{margin:2px 0 0;font-size:15px;font-weight:500;line-height:1.5}
 <header class="top"><div class="wrap">
   <a class="brand" href="#">칸 라이언즈 아카이브 <small>2026</small></a>
   <nav class="tiers" id="nav"></nav>
+  <form class="search" role="search" id="sform" onsubmit="return false"><input id="q" type="search" placeholder="브랜드·캠페인·키워드 검색" aria-label="수상작 검색" autocomplete="off"></form>
 </div></header>
 <main class="wrap" id="app"></main>
 
@@ -703,6 +709,35 @@ function detail(e){
     </div>${facts}</div>`;
 }
 
+const norm = t => String(t||"").toLowerCase().normalize("NFKC");
+let SIDX = null;
+function sIndex(){
+  if(SIDX) return SIDX;
+  SIDX = E.map(e => {
+    const head = norm([e.title, e.brand, BRAND_DESC[e.id]].join(" "));
+    const flat = v => Array.isArray(v) ? v.map(flat).join(" ") : (v && typeof v==="object") ? Object.values(v).map(flat).join(" ") : String(v||"");
+    const body = norm([e.agency, e.country, e.cat, (e.awards||[]).join(" "), IND_OF[e.id], TIERS[e.tier].name, e.ko, flat(e.bg), flat(e.solIntro), flat(e.sol), flat(e.results), flat(e.analysis), flat(e.stats)].join(" "));
+    return {e, head, body};
+  });
+  return SIDX;
+}
+function searchPage(q){
+  const terms = norm(q).split(/\s+/).filter(Boolean);
+  if(!terms.length) return `<div class="listhead"><div><span class="eyebrow">Search</span><h1>검색</h1></div></div><p class="searchhint">브랜드, 캠페인 이름, 에이전시, 국가, 업종, 수상 부문, 내용 속 키워드로 찾을 수 있음.</p>`;
+  const order = Object.keys(TIERS);
+  const hits = sIndex().map(x => {
+    let score = 0;
+    for(const t of terms){ const h = x.head.includes(t), b = x.body.includes(t); if(!h && !b) return null; score += h ? 3 : 1; }
+    return {e:x.e, score};
+  }).filter(Boolean).sort((a,b) => b.score-a.score || order.indexOf(a.e.tier)-order.indexOf(b.e.tier));
+  const cards = hits.map(({e}) => `<a class="card ${isDone(e)?"":"pending"}" href="#c-${e.id}">
+      ${plate(e,false,null,e.video)}
+      <div><div class="ttl">${esc(e.title)}</div><div class="sub">${esc(e.brand)} · ${esc(TIERS[e.tier].short)}${e.awards?" · "+esc(e.awards.join(", ")):""}</div></div>
+      <div>${isDone(e)?'':'<span class="chip">정리 예정</span>'}</div></a>`).join("");
+  return `<div class="listhead"><div><span class="eyebrow">Search</span><h1>“${esc(q)}”</h1></div><span class="count">${hits.length}편</span></div>
+    ${hits.length ? `<div class="cards">${cards}</div>` : `<div class="pendingbox">일치하는 수상작이 없음. 다른 단어로 찾아보세요.</div>`}`;
+}
+
 function route(keepScroll){
   const r = location.hash.replace("#","");
   const app = document.getElementById("app");
@@ -710,7 +745,11 @@ function route(keepScroll){
   const [rk, rp] = r.split("/");
   const ctx = TIERS[rk] ? rk : ((E.find(e => "c-"+e.id===rk)||{}).tier || "");
   if(ctx !== lastTier){ ind = "all"; lastTier = ctx; }
-  if(TIERS[rk]) html = tierPage(rk, parseInt(rp)||1);
+  const qi = document.getElementById("q");
+  if(rk === "q"){ const qq = decodeURIComponent(r.slice(2)); html = searchPage(qq); if(qi && !window.__typing) qi.value = qq; }
+  else if(qi && !window.__typing) qi.value = "";
+  if(rk === "q"){}
+  else if(TIERS[rk]) html = tierPage(rk, parseInt(rp)||1);
   else if(r.startsWith("c-") && E.find(e => "c-"+e.id===r)) html = detail(E.find(e => "c-"+e.id===r));
   else html = home();
   app.innerHTML = html;
@@ -732,6 +771,11 @@ function route(keepScroll){
   if(keepScroll !== true) window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", () => route());
+(() => { const qi = document.getElementById("q"); let t = null;
+  const go = () => { const v = qi.value.trim(); const h = v ? "#q/" + encodeURIComponent(v) : "#q/"; if(location.hash !== h){ if(location.hash.startsWith("#q/")) history.replaceState(null, "", h); else history.pushState(null, "", h); window.__typing = true; route(); window.__typing = false; } };
+  qi.addEventListener("input", () => { clearTimeout(t); t = setTimeout(go, 200); });
+  qi.addEventListener("keydown", ev => { if(ev.key === "Enter"){ clearTimeout(t); go(); } if(ev.key === "Escape"){ qi.value = ""; go(); } });
+})();
 route();
 </script>
 
