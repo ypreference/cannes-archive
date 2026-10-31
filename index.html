@@ -65,6 +65,7 @@ form.search input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .folder .fn{font-size:14px;font-weight:500;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .folder .fc{display:block;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:2px}
 .folder.empty{opacity:.45}
+.fsep{margin:34px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
 .folder.feature{grid-column:span 2;background:var(--surface);border-color:var(--line)}
 .crumbs{font-size:14px;color:var(--muted);margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .crumbs a{color:var(--muted);text-decoration:none}.crumbs a:hover{color:var(--ink)}
@@ -342,7 +343,9 @@ function folderHome(){
   const can = `<a class="folder feature" href="#cannes">${FICON("#1E2740","#2E3A5C")}<span><span class="fn">2026 칸 라이언즈</span><span class="fc">${E.length}편 · 그랑프리·골드·실버·브론즈</span></span></a>`;
   const fs = FOLDERS.map(f => `<a class="folder ${cnt[f]?"":"empty"}" href="#f/${fslug(f)}">${FICON("#E8B64C","#F4CE6A")}<span><span class="fn">${esc(f)}</span><span class="fc">${cnt[f]||0}편</span></span></a>`).join("");
   return `<section class="hero" style="padding-bottom:10px"><span class="eyebrow">P.reference · 광고 레퍼런스 아카이브</span><h1 style="font-size:clamp(28px,4vw,40px)">레퍼런스 폴더</h1></section>
-    <div class="fgrid">${can}${fs}</div>`;
+    <div class="fgrid">${fs}</div>
+    <div class="fsep"><span class="eyebrow">광고제 수상작</span></div>
+    <div class="fgrid">${can}</div>`;
 }
 function folderPage(f, page){
   const list = R.filter(x => (x.folders||[]).includes(f));
@@ -573,7 +576,7 @@ window.addEventListener("hashchange", () => { closeModal(); route(); });
   qi.addEventListener("input", () => { clearTimeout(t); t = setTimeout(go, 200); });
   qi.addEventListener("keydown", ev => { if(ev.key === "Enter"){ clearTimeout(t); go(); } if(ev.key === "Escape"){ qi.value = ""; go(); } });
 })();
-Promise.all([fetch("data/cannes2026.json?v=36515414").then(r=>r.json()), fetch("data/refs.json?v=36515414").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
+Promise.all([fetch("data/cannes2026.json?v=53006159").then(r=>r.json()), fetch("data/refs.json?v=53006159").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
 </script>
 
 </body>
