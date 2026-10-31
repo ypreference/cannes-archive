@@ -45,6 +45,7 @@ a{color:inherit}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
 header.top .wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding-block:12px}
 .brand{font-family:var(--f-display);font-weight:900;font-size:18px;text-decoration:none;letter-spacing:-.01em;display:flex;align-items:baseline;gap:8px}
+.brand .logo{width:26px;height:26px;border-radius:6px;align-self:center;flex:none}
 .brand small{font-family:var(--f-mono);font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.08em}
 nav.tiers{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
 nav.tiers a{text-decoration:none;font-size:14px;font-weight:500;padding:6px 12px;border-radius:999px;color:var(--muted);display:flex;align-items:center;gap:7px}
@@ -209,7 +210,7 @@ aside.facts dd{margin:2px 0 0;font-size:15px;font-weight:500;line-height:1.5}
 </style>
 
 <header class="top"><div class="wrap">
-  <a class="brand" href="#">P.reference <small>2026 칸 라이언즈</small></a>
+  <a class="brand" href="#"><img class="logo" src="favicon.svg" alt="" width="26" height="26">P.reference <small>2026 칸 라이언즈</small></a>
   <nav class="tiers" id="nav"></nav>
   <form class="search" role="search" id="sform" onsubmit="return false"><input id="q" type="search" placeholder="브랜드·캠페인·키워드 검색" aria-label="수상작 검색" autocomplete="off"></form>
 </div></header>
