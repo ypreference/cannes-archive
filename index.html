@@ -119,7 +119,7 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .pages .cur{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
 .pages .off{opacity:.35}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px 18px}
-.card{text-decoration:none;display:grid;gap:10px;min-width:0}
+.card{text-decoration:none;display:grid;gap:10px;min-width:0;align-content:start}
 .card .ttl{font-weight:600;font-size:16px;line-height:1.4}
 .card .sub{font-size:13px;color:var(--muted);line-height:1.5}
 .card:hover .plate{transform:translateY(-2px)}
@@ -576,7 +576,7 @@ window.addEventListener("hashchange", () => { closeModal(); route(); });
   qi.addEventListener("input", () => { clearTimeout(t); t = setTimeout(go, 200); });
   qi.addEventListener("keydown", ev => { if(ev.key === "Enter"){ clearTimeout(t); go(); } if(ev.key === "Escape"){ qi.value = ""; go(); } });
 })();
-Promise.all([fetch("data/cannes2026.json?v=20534520").then(r=>r.json()), fetch("data/refs.json?v=20534520").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
+Promise.all([fetch("data/cannes2026.json?v=68709810").then(r=>r.json()), fetch("data/refs.json?v=68709810").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
 </script>
 
 </body>
