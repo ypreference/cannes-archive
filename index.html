@@ -109,7 +109,6 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .bdesc{display:block;font-size:12.5px;font-weight:400;color:var(--muted);margin-top:3px;line-height:1.45}
 .yt-poster{position:absolute;inset:0;background:#000 center/cover no-repeat;display:grid;place-items:center;transition:opacity .2s}
 .yt.started .yt-poster{opacity:0;pointer-events:none}
-.yt.paused .yt-poster,.yt.started.paused .yt-poster{opacity:1}
 .yt-big{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.55);display:grid;place-items:center}
 .yt-big::before{content:"";border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px}
 .yt-hit{position:absolute;inset:0;cursor:pointer}
@@ -143,7 +142,7 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 @media (max-width:860px){.dgrid{grid-template-columns:minmax(0,1fr)}}
 .vids{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;margin-bottom:24px}
 .media{max-width:720px;margin-bottom:8px}
-.media.with-desc{max-width:none;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;align-items:start}
+.media.with-desc{max-width:none;margin-top:28px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;align-items:start}
 .media.with-desc .vdesc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);margin-bottom:24px}
 .media.with-desc .vdesc[open] .vbody{max-height:calc(100vh - 170px);overflow-y:auto;overscroll-behavior:contain}
 @media (max-width:860px){.media.with-desc{display:block}.media.with-desc .vdesc{position:static}.media.with-desc .vdesc[open] .vbody{max-height:none}}
@@ -167,10 +166,10 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .vdesc summary::-webkit-details-marker{display:none}
 .vdesc summary::after{content:"+";font-family:var(--f-mono);font-size:18px;color:var(--muted)}
 .vdesc[open] summary::after{content:"−"}
-.vdesc .vbody{padding:0 18px 18px;border-top:1px solid var(--line)}
+.vdesc .vbody{padding:0 18px 18px;border-top:1px solid var(--line);font-size:14px;line-height:1.65}
 .vdesc .vbody p{margin:14px 0 0;max-width:62ch}
 .vdesc .vnote{font-size:13px;color:var(--muted)}
-.vdesc h4{margin:22px 0 0;font-family:var(--f-body);font-size:14px;font-weight:600;color:var(--accent)}
+.vdesc h4{margin:22px 0 0;font-family:var(--f-body);font-size:13px;font-weight:600;color:var(--accent)}
 .vdesc .flink{color:var(--accent);font-weight:600}
 .vclose{margin-top:20px;font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
 .vclose:hover{color:var(--ink)}
@@ -569,7 +568,7 @@ async function mountYT(btn,id){
   let dragging=false, timer=null;
   const pl=new YT.Player(host,{videoId:id,host:"https://www.youtube-nocookie.com",playerVars:{autoplay:1,controls:0,rel:0,iv_load_policy:3,playsinline:1,disablekb:1,cc_load_policy:0,fs:0,modestbranding:1},events:{
     onReady:e=>{ try{pl.unloadModule("captions");}catch(_){} e.target.playVideo(); timer=setInterval(()=>{ const d=pl.getDuration?.()||0, c=pl.getCurrentTime?.()||0; if(d&&!dragging) seek.value=Math.round(c/d*1000); time.textContent=fmtT(c)+" / "+fmtT(d); },250); },
-    onStateChange:e=>{ w.classList.toggle("playing",e.data===1); w.classList.toggle("paused",e.data===2||e.data===0); if(e.data===1) w.classList.add("started"); if(e.data===0) w.classList.remove("started"); if(e.data===1){ try{pl.unloadModule("captions");}catch(_){} } if(e.data===0){ w.classList.remove("playing"); } }
+    onStateChange:e=>{ w.classList.toggle("playing",e.data===1); if(e.data===1) w.classList.add("started"); if(e.data===0) w.classList.remove("started"); if(e.data===1){ try{pl.unloadModule("captions");}catch(_){} } if(e.data===0){ w.classList.remove("playing"); } }
   }});
   const toggle=()=>{ const st=pl.getPlayerState?.(); st===1?pl.pauseVideo():pl.playVideo(); };
   w.querySelector(".yt-hit").addEventListener("click",toggle); pp.addEventListener("click",toggle);
