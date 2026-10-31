@@ -77,16 +77,13 @@ form.search input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .p-ref{background:#2C3440}
 /* modal */
 .mback{position:fixed;inset:0;background:rgba(10,12,18,.55);z-index:20;display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;overflow-y:auto}
-.mbox{background:var(--bg);border-radius:10px;width:min(980px,100%);position:relative;padding:28px 28px 36px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.mbox{background:var(--bg);border-radius:10px;width:min(1120px,100%);position:relative;padding:28px 28px 36px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .mclose{position:sticky;top:0;float:right;margin:-14px -14px 0 0;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:20px;cursor:pointer;z-index:2}
 .mopen{display:inline-block;font-size:13px;color:var(--accent);margin-bottom:10px}
 .mbox .back,.mbox .pager{display:none}
-.mbox .dgrid,.mbox .media.with-desc{grid-template-columns:minmax(0,1fr)}
-.mbox .media.with-desc .vdesc{position:static}
-.mbox .media.with-desc .vdesc[open] .vbody{max-height:none}
-.mbox aside.facts{position:static}
+.mbox aside.facts,.mbox .media.with-desc .vdesc{top:0}
 body.modal-open{overflow:hidden}
-.mcontent{display:flex;flex-direction:column}.mcontent>*{order:3}.mcontent>.crumbs{display:none}.mcontent>.dhead{order:1}.mcontent>.media{order:2;margin-bottom:20px}.mbox .dhead h1{font-size:clamp(24px,3vw,34px)}.mbox .media .vids{max-width:760px}
+.mcontent>.crumbs{display:none}.mbox .dhead h1{font-size:clamp(24px,3vw,34px)}
 a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 main{padding-block:40px 80px}
@@ -561,7 +558,6 @@ function openModal(kind, id){
   document.body.appendChild(back); document.body.classList.add("modal-open");
   const box = back.querySelector(".mbox"); wire(box);
   back.addEventListener("click", ev => { if(ev.target === back || ev.target.closest(".mclose")) closeModal(); if(ev.target.closest(".mopen")) closeModal(); });
-  const first = box.querySelector(".vplay"); if(first && LIVE) first.click();
   box.querySelector(".mclose").focus();
 }
 document.addEventListener("keydown", ev => { if(ev.key === "Escape") closeModal(); });
@@ -577,7 +573,7 @@ window.addEventListener("hashchange", () => { closeModal(); route(); });
   qi.addEventListener("input", () => { clearTimeout(t); t = setTimeout(go, 200); });
   qi.addEventListener("keydown", ev => { if(ev.key === "Enter"){ clearTimeout(t); go(); } if(ev.key === "Escape"){ qi.value = ""; go(); } });
 })();
-Promise.all([fetch("data/cannes2026.json?v=5039464").then(r=>r.json()), fetch("data/refs.json?v=5039464").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
+Promise.all([fetch("data/cannes2026.json?v=36515414").then(r=>r.json()), fetch("data/refs.json?v=36515414").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
 </script>
 
 </body>
