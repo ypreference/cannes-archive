@@ -377,9 +377,15 @@ function refDetail(x){
   const f0 = (x.folders||[])[0];
   return `<div class="crumbs"><a href="#">P.reference</a><span>›</span>${f0?`<a href="#f/${fslug(f0)}">${esc(f0)}</a><span>›</span>`:""}<span>${esc(x.title)}</span></div>
     <header class="dhead">${tagsHtml(refTags(x))}<h1>${esc(x.title)}</h1>${x.memo?`<p class="ko" style="font-size:15px">내 메모 · ${esc(x.memo)}</p>`:""}${x.ko?`<p class="ko">${esc(x.ko)}</p>`:""}</header>
-    <div class="dgrid"><div style="min-width:0"><article>${sec("배경",x.bg)}${sec("시장에서의 문제",x.problem)}${sec("아이디어",x.idea)}</article></div>${facts}</div>
+    <div class="dgrid"><div style="min-width:0"><article>
+      <section><h2>배경 및 문제</h2><div>${paras(x.bg||[])}</div></section>
+      <section><h2>해결</h2><div>${paras(x.solIntro||[])}${x.sol&&x.sol.length?`<ul style="margin-top:4px">${x.sol.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>`:""}</div></section>
+    </article></div>${facts}</div>
     ${media}
-    <div class="dgrid"><div style="min-width:0"><article>${sec("해결 방법 및 성과",x.sol)}</article></div><div></div></div>`;
+    <div class="dgrid"><div style="min-width:0"><article>
+      <section><h2>성과</h2><div>${x.stats?`<div class="stats">${x.stats.map(s=>`<div class="stat"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div>`).join("")}</div>`:""}${paras(x.results||[])}</div></section>
+      ${x.analysis&&x.analysis.length?`<section><h2>분석</h2><div>${paras(x.analysis)}</div></section>`:""}
+    </article></div><div></div></div>`;
 }
 function cannesHome(){
   const tiles = Object.entries(TIERS).map(([k,t]) => `<a class="folder" href="#${k}">${FICON(`var(--${t.cls})`, `color-mix(in srgb, var(--${t.cls}) 75%, white)`)}<span><span class="fn">${t.name}</span><span class="fc">${E.filter(e=>e.tier===k).length}편</span></span></a>`).join("");
@@ -576,7 +582,7 @@ window.addEventListener("hashchange", () => { closeModal(); route(); });
   qi.addEventListener("input", () => { clearTimeout(t); t = setTimeout(go, 200); });
   qi.addEventListener("keydown", ev => { if(ev.key === "Enter"){ clearTimeout(t); go(); } if(ev.key === "Escape"){ qi.value = ""; go(); } });
 })();
-Promise.all([fetch("data/cannes2026.json?v=68709810").then(r=>r.json()), fetch("data/refs.json?v=68709810").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
+Promise.all([fetch("data/cannes2026.json?v=32832232").then(r=>r.json()), fetch("data/refs.json?v=32832232").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
 </script>
 
 </body>
