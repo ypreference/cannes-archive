@@ -582,7 +582,7 @@ window.addEventListener("hashchange", () => { closeModal(); route(); });
   qi.addEventListener("input", () => { clearTimeout(t); t = setTimeout(go, 200); });
   qi.addEventListener("keydown", ev => { if(ev.key === "Enter"){ clearTimeout(t); go(); } if(ev.key === "Escape"){ qi.value = ""; go(); } });
 })();
-Promise.all([fetch("data/cannes2026.json?v=60118232").then(r=>r.json()), fetch("data/refs.json?v=60118232").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
+Promise.all([fetch("data/cannes2026.json?v=36201135").then(r=>r.json()), fetch("data/refs.json?v=36201135").then(r=>r.json())]).then(([a,b]) => { E = a; R = b; SIDX = null; route(); }).catch(err => { document.getElementById("app").innerHTML = `<div class="pendingbox">데이터를 불러오지 못했음. 새로고침해 보세요.</div>`; console.error(err); });
 </script>
 
 </body>
